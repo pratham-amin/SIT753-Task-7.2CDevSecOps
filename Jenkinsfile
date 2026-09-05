@@ -17,14 +17,13 @@ pipeline {
 
         stage('SonarQube Analysis') {
             steps {
-                withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                withSonarQubeEnv('SonarCloud') {
                     bat """
                         sonar-scanner ^
                         -Dsonar.projectKey=pratham-amin_SIT753-Task-7.2CDevSecOps ^
                         -Dsonar.organization=pratham-amin ^
                         -Dsonar.sources=. ^
-                        -Dsonar.host.url=https://cloud.sonarsource.com ^
-                        -Dsonar.login=%SONAR_TOKEN%
+                        -Dsonar.host.url=https://cloud.sonarsource.com
                     """
                 }
             }
