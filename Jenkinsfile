@@ -21,8 +21,10 @@ pipeline {
 
                     script {
                         def scannerHome = tool name: 'SonarScannerCLI', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
+                        def scannerBin = "${scannerHome}\\sonar-scanner-5.0.1.3006-windows\\bin\\sonar-scanner.bat"
+
                         bat """
-                            "${scannerHome}\\bin\\sonar-scanner.bat" ^
+                            "${scannerBin}" ^
                             -Dsonar.projectKey=pratham-amin_SIT753-Task-7.2CDevSecOps ^
                             -Dsonar.organization=pratham-amin ^
                             -Dsonar.sources=. ^
