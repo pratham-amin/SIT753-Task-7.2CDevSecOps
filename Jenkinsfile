@@ -2,39 +2,31 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        stage('Checkout') {
             steps {
-                echo 'Building project...'
-                // your build steps here
+                checkout scm
             }
         }
-        stage('Test') {
+
+        stage('Install Dependencies') {
             steps {
-                echo 'Running tests...'
-                // your test steps here
+                bat 'npm install || exit /b 0'
             }
         }
-    }
 
-    post {
-        always {
-            emailext (
-                subject: "Task 7.2C DevSecOps Report - Build ${currentBuild.fullDisplayName}: ${currentBuild.currentResult}",
-                body: """Hello Team,
-
-This is the automated report for Task 7.2C DevSecOps.
-
-Build Name: ${currentBuild.fullDisplayName}
-Build Result: ${currentBuild.currentResult}
-
-You can check the detailed console output here:
-${env.BUILD_URL}console
-
-Regards,
-Jenkins Automated Pipeline
-""",
-                to: 'yourteam@example.com'
-            )
+        stage('SonarCloud Analysis') {
+            steps {
+                withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
+                    bat """
+                        sonar-scanner ^
+                        -Dsonar.projectKey=pratham-amin_SIT753-Task-7.2CDevSecOps ^
+                        -Dsonar.organization=pratham-amin ^
+                        -Dsonar.sources=. ^
+                        -Dsonar.host.url=https://sonarcloud.io ^
+                        -Dsonar.login=%SONAR_TOKEN%
+                    """
+                }
+            }
         }
     }
 }
