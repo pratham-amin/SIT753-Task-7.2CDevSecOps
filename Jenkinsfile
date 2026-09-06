@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        hudson.plugins.sonar.SonarRunnerInstallation 'SonarScannerCLI'
-    }
-
     stages {
 
         stage('Checkout') {
@@ -22,13 +18,15 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarCloud') {
-                    bat """
-                        sonar-scanner ^
-                        -Dsonar.projectKey=pratham-amin_SIT753-Task-7.2CDevSecOps ^
-                        -Dsonar.organization=pratham-amin ^
-                        -Dsonar.sources=. ^
-                        -Dsonar.host.url=https://cloud.sonarsource.com
-                    """
+                    withSonarScanner() {
+                        bat """
+                            sonar-scanner ^
+                            -Dsonar.projectKey=pratham-amin_SIT753-Task-7.2CDevSecOps ^
+                            -Dsonar.organization=pratham-amin ^
+                            -Dsonar.sources=. ^
+                            -Dsonar.host.url=https://cloud.sonarsource.com
+                        """
+                    }
                 }
             }
         }
