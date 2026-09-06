@@ -2,38 +2,39 @@ pipeline {
     agent any
 
     stages {
-
-        stage('Checkout') {
+        stage('Build') {
             steps {
-                checkout scm
+                echo 'Building project...'
+                // your build steps here
             }
         }
-
-        stage('Install Dependencies') {
+        stage('Test') {
             steps {
-                bat 'npm install || exit /b 0'
+                echo 'Running tests...'
+                // your test steps here
             }
         }
+    }
 
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarCloud') {
+    post {
+        always {
+            emailext (
+                subject: "Task 7.2C DevSecOps Report - Build ${currentBuild.fullDisplayName}: ${currentBuild.currentResult}",
+                body: """Hello Team,
 
-                    script {
-                        def scannerHome = tool name: 'SonarScannerCLI', type: 'hudson.plugins.sonar.SonarRunnerInstallation'
-                        def scannerBin = "${scannerHome}\\sonar-scanner-5.0.1.3006-windows\\bin\\sonar-scanner.bat"
+This is the automated report for Task 7.2C DevSecOps.
 
-                        bat """
-                            "${scannerBin}" ^
-                            -Dsonar.projectKey=pratham-amin_SIT753-Task-7.2CDevSecOps ^
-                            -Dsonar.organization=pratham-amin ^
-                            -Dsonar.sources=. ^
-                            -Dsonar.host.url=https://cloud.sonarsource.com
-                        """
-                    }
+Build Name: ${currentBuild.fullDisplayName}
+Build Result: ${currentBuild.currentResult}
 
-                }
-            }
+You can check the detailed console output here:
+${env.BUILD_URL}console
+
+Regards,
+Jenkins Automated Pipeline
+""",
+                to: 'yourteam@example.com'
+            )
         }
     }
 }
