@@ -1,51 +1,46 @@
 pipeline {
     agent any
 
+    environment {
+        SONAR_TOKEN = credentials('sonarcloud-token')
+    }
+
     stages {
         stage('Checkout') {
             steps {
-                echo 'Checking out source code...'
-                checkout scm
+                git branch: 'main', url: 'https://github.com/pratham-amin/SIT753-Task-7.2CDevSecOps.git'
             }
         }
 
         stage('Install Dependencies') {
             steps {
-                echo 'Installing dependencies...'
-                bat 'npm install || exit /b 0'
+                bat 'npm install'
             }
         }
 
         stage('Run Tests') {
             steps {
-                echo 'Running tests...'
-                bat 'npm test || exit /b 0'
-                echo 'All tests passed successfully.'
-                echo 'Test Coverage: 85%'
+                bat 'npm test'
             }
         }
 
         stage('SonarCloud Analysis') {
             steps {
-                echo 'Starting SonarCloud analysis...'
-                echo 'Running sonar-scanner...'
-                echo 'Project Key: pratham-amin_SIT753-Task-7.2CDevSecOps'
-                echo 'Organization: pratham-amin'
-                echo 'Sources: .'
-                echo 'SonarCloud analysis completed successfully.'
-                echo 'Quality Gate passed.'
-                echo 'Metrics:'
-                echo '  Bugs: 0'
-                echo '  Vulnerabilities: 0'
-                echo '  Code Smells: 2'
-                echo '  Coverage: 85%'
+                bat """
+                    sonar-scanner ^
+                    -Dsonar.projectKey=pratham-amin_SIT753-Task-7.2CDevSecOps ^
+                    -Dsonar.organization=pratham-amin ^
+                    -Dsonar.sources=. ^
+                    -Dsonar.host.url=https://sonarcloud.io ^
+                    -Dsonar.login=%SONAR_TOKEN%
+                """
             }
         }
     }
 
     post {
         success {
-            echo 'Pipeline finished successfully!'
+            echo 'SonarCloud analysis completed successfully!'
         }
     }
 }
